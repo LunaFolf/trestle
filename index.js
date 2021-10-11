@@ -1,5 +1,5 @@
-import { WskyRoute } from "./classes/WskyRoute"
-import { WskyRestAPI } from "./classes/WskyRestAPI"
+const { WskyRestAPI } = require('../classes/WskyRestAPI')
+const { WskyRoute } = require('../classes/WskyRoute')
 
 exports.WskyRoute = WskyRoute
 exports.WskyRestAPI = WskyRestAPI
