@@ -1,5 +1,5 @@
 {
-  "name": "tristle",
+  "name": "trestle",
   "version": "0.0.0-beta1",
   "description": "Bespoke Rest API with built in router.",
   "main": "index.js",
