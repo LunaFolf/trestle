@@ -125,36 +125,41 @@ class WskyRestAPI {
       request
         .on('data', data => requestBody.push(data))
         .on('end', async function () {
+          if (q.pathname === '/' || method === 'OPTIONS') {
+            response.writeHead(200, { 'Content-Type': 'application/json' })
+            response.write(convertToJsonString({
+              status: 'success',
+              data: null
+            }))
+            response.end()
+            return
+          }
+
           const jsonBodyData = getJsonDataFromRequestBody(requestBody, { contentType: request.headers['content-type'] })
           const matchedRoute = self.matchRoute(q.pathname, method)
 
-          if (!matchedRoute.route) {
+          console.log({jsonBodyData, matchedRoute})
+
+          if (!matchedRoute || !matchedRoute.route) {
             response.writeHead(404, { 'Content-Type': 'application/json' })
             response.write(convertToJsonString({
               status: 'error',
               message: 'Route not found'
             }))
+            response.end()
             return false
           }
 
           const { route, params } = matchedRoute
           if (route.public === undefined) route.public = false
 
-          if (route) {
-            response.writeHead(200, { 'Content-Type': 'application/json' })
-            await route.handle({
-              request: request,
-              response: response,
-              bodyData: jsonBodyData,
-              params
-            })
-          } else {
-            response.writeHead(404, { 'Content-Type': 'application/json' })
-            response.write(convertToJsonString({
-              status: 'error',
-              message: '[ERR-200] You are not whitelisted to receive respones from this source.'
-            }))
-          }
+          response.writeHead(200, { 'Content-Type': 'application/json' })
+          await route.handle({
+            request: request,
+            response: response,
+            bodyData: jsonBodyData,
+            params
+          })
 
           response.end()
         })
