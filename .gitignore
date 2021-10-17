@@ -1,5 +1,4 @@
 certs/*
 node_modules/*
-testServer.js
 .env
 .env.*
