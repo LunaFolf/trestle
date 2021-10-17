@@ -1,5 +1,5 @@
-const { WskyRestAPI } = require('./classes/WskyRestAPI')
-const { WskyRoute } = require('./classes/WskyRoute')
+const { RestServer } = require('./classes/RestServer')
+const { Route } = require('./classes/Route')
 
-exports.WskyRoute = WskyRoute
-exports.WskyRestAPI = WskyRestAPI
+exports.Route = Route
+exports.RestServer = RestServer

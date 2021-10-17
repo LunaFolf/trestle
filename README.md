@@ -19,22 +19,21 @@ npm install @whiskeedev/trestle
 ```
 Once installed, you can reference the API class by doing:
 ```javascript
-// WARNING: This class name will most likely change before the official release - please keep an eye on this guide.
-const { WskyRestAPI } = require('@whiskeedev/trestle')
+const { RestServer } = require('@whiskeedev/trestle')
 ```
 
 Once you've gotten your class, you can start setting up the server. There are a few options currently available, below is an example for setting up a basic server:
 ```javascript
 // create the server class, using port 8081 for listening
-const wskyRestServer = new WskyRestAPI({ port: 8081 })
+const restServer = new RestServer({ port: 8081 })
 
 // define the SSL key and cert (at this moment in time, HTTPS is only available and SSL details ARE required)
 const key = fs.readFileSync(process.env.ssl_key).toString()
 const cert = fs.readFileSync(process.env.ssl_cert).toString()
-wskyRestServer.setSsl(key, cert)
+restServer.setSsl(key, cert)
 
 // Start the server
-wskyRestServer.init()
+restServer.init()
 ```
 
 _Whiskee, put a table here later with the options available for the server ~past whiskee_
@@ -43,11 +42,11 @@ Congratulations! You have a server set up! Wasn't that _so_ easy?
 
 But wait, I hear you say, what about my routes? How do I define them?
 
-To create a route, use the `WskyRoute` class (name, again, subject to change) like so:
+To create a route, use the `Route` class like so:
 ```javascript
-const { WskyRoute } = require('@whiskeedev/trestle')
+const { Route } = require('@whiskeedev/trestle')
 
-const route = new WskyRoute('my/https/path', {
+const route = new Route('my/https/path', {
   method: 'GET', // defaults to 'GET' - should accept any method other than 'OPTIONS' (only 'GET' and 'POST' have been tested as of right now)
   public: true // defaults to false - doesn't change anything, yet...
 })
@@ -67,7 +66,7 @@ Kinda simple, kinda messy - I promise once we're out of abstraction and moving c
 
 Now all you have to do, is add the route to your server. You can do this before or after starting it, just do:
 ```javascript
-wskyRestServer.addRoute(route)
+restServer.addRoute(route)
 ```
 
 And viola - hopefully that worked... hopefully...

@@ -1,5 +1,5 @@
-const { WskyRestAPI } = require('./classes/WskyRestAPI')
-const { WskyRoute } = require('./classes/WskyRoute')
+const { RestServer } = require('./classes/RestServer')
+const { Route } = require('./classes/Route')
 const fs = require('fs')
 require('dotenv').config()
 
@@ -19,12 +19,12 @@ const rawRoutes = [
 const routes = []
 
 rawRoutes.forEach(rawRoute => {
-  const route = new WskyRoute(rawRoute.path, { method: rawRoute.method, public: rawRoute.public })
+  const route = new Route(rawRoute.path, { method: rawRoute.method, public: rawRoute.public })
   route.on('route_match', rawRoute.handler)
   routes.push(route)
 })
 
-const wskyRestServer = new WskyRestAPI({ port: 8081, debug: true })
+const wskyRestServer = new RestServer({ port: 8081, debug: true })
 if (process.env.ssl_key && process.env.ssl_cert) {
   const key = fs.readFileSync(process.env.ssl_key).toString()
   const cert = fs.readFileSync(process.env.ssl_cert).toString()

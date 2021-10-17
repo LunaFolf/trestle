@@ -1,7 +1,7 @@
-const { WskyRoute } = require('../classes/WskyRoute')
+const { Route } = require('../classes/Route')
 
 test('Created route contains required fields', () => {
-  const route = new WskyRoute('/test/route')
+  const route = new Route('/test/route')
 
   expect(route).toMatchObject({
     path: '/test/route',
@@ -11,7 +11,7 @@ test('Created route contains required fields', () => {
 })
 
 test('Route emits appropriate event upon receiving handle data', () => {
-  const route = new WskyRoute('/test/route')
+  const route = new Route('/test/route')
   let dummyMessage = null
 
   const sendData = {
@@ -25,7 +25,7 @@ test('Route emits appropriate event upon receiving handle data', () => {
 })
 
 test('Can create route with additional options', () => {
-  const route = new WskyRoute('/shiny/metal/ass', {
+  const route = new Route('/shiny/metal/ass', {
     method: 'POST',
     public: true
   })

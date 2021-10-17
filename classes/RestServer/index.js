@@ -1,6 +1,7 @@
 const https = require('https')
+const { resolve } = require('path')
 const url = require('url')
-const { WskyRoute } = require('../WskyRoute')
+const { Route } = require('../Route')
 
 const titleCard = '[WskyRest HTTPS]'
 
@@ -23,7 +24,7 @@ function getJsonDataFromRequestBody(requestBody, { contentType }) {
   return requestBody ? JSON.parse(requestBody) : null
 }
 
-class WskyRestAPI {
+class RestServer {
   routes = []
   options = {}
   port = 443
@@ -41,7 +42,7 @@ class WskyRestAPI {
   }
 
   addRoute(route) {
-    if (!route instanceof WskyRoute) throw new Error("Provided route must be an instance of class 'WskyRoute'.")
+    if (!route instanceof Route) throw new Error("Provided route must be an instance of class 'WskyRoute'.")
     this.routes.push(route)
     if (this.debug) console.log('Adding route: ', route)
   }
@@ -138,8 +139,6 @@ class WskyRestAPI {
           const jsonBodyData = getJsonDataFromRequestBody(requestBody, { contentType: request.headers['content-type'] })
           const matchedRoute = self.matchRoute(q.pathname, method)
 
-          console.log({jsonBodyData, matchedRoute})
-
           if (!matchedRoute || !matchedRoute.route) {
             response.writeHead(404, { 'Content-Type': 'application/json' })
             response.write(convertToJsonString({
@@ -167,4 +166,4 @@ class WskyRestAPI {
   }
 }
 
-module.exports = { WskyRestAPI }
+module.exports = { RestServer }

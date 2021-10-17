@@ -1,13 +1,13 @@
 const EventEmitter = require('node:events')
 
-class WskyRoute extends EventEmitter {
+class Route extends EventEmitter {
   path = undefined
   method = 'GET'
   public = false
 
   constructor(path, options) {
     super()
-    if (!path) throw new Error("WskyRoute 'path' field is a required parameter.")
+    if (!path) throw new Error("Route 'path' field is a required parameter.")
     this.path = path
     if (options) {
       this.method = options.method || 'GET'
@@ -20,4 +20,4 @@ class WskyRoute extends EventEmitter {
   }
 }
 
-module.exports = { WskyRoute }
+module.exports = { Route }

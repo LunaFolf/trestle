@@ -1,5 +1,5 @@
-const { WskyRestAPI } = require('../classes/WskyRestAPI')
-const { WskyRoute } = require('../classes/WskyRoute')
+const { RestServer } = require('../classes/RestServer')
+const { Route } = require('../classes/Route')
 const fetch = require('node-fetch')
 const fs = require('fs')
 const https = require('https')
@@ -24,14 +24,14 @@ const rawRoutes = [
 const routes = []
 
 rawRoutes.forEach(rawRoute => {
-  const route = new WskyRoute(rawRoute.path, { method: rawRoute.method, public: rawRoute.public })
+  const route = new Route(rawRoute.path, { method: rawRoute.method, public: rawRoute.public })
   route.on('route_match', rawRoute.handler)
 
   routes.push(route)
 })
 
 test('Can create API with no errors', () => {
-  api = new WskyRestAPI({ port: 8081 })
+  api = new RestServer({ port: 8081 })
   if (process.env.ssl_key && process.env.ssl_cert) {
     const key = fs.readFileSync(process.env.ssl_key).toString()
     const cert = fs.readFileSync(process.env.ssl_cert).toString()
@@ -46,6 +46,15 @@ test('Can create API with no errors', () => {
     debug: false,
     blockedIps: [],
     validHosts: []
+  })
+})
+
+test('Can add preRoute on all routes', () => {
+  api.beforeEach((to, request) => {
+    return {
+      resolve: false,
+      data: { 'hello': 'world!' }
+    }
   })
 })
 
