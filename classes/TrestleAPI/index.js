@@ -1,7 +1,7 @@
 const https = require('https')
 const { resolve } = require('path')
 const url = require('url')
-const { Route } = require('../Route')
+const { TrestleRoute } = require('../TrestleRoute')
 
 const titleCard = '[WskyRest HTTPS]'
 
@@ -24,7 +24,7 @@ function getJsonDataFromRequestBody(requestBody, { contentType }) {
   return requestBody ? JSON.parse(requestBody) : null
 }
 
-class RestServer {
+class TrestleAPI {
   routes = []
   options = {}
   port = 443
@@ -42,7 +42,7 @@ class RestServer {
   }
 
   addRoute(route) {
-    if (!route instanceof Route) throw new Error("Provided route must be an instance of class 'WskyRoute'.")
+    if (!route instanceof TrestleRoute) throw new Error("Provided route must be an instance of class 'TrestleRoute'.")
     this.routes.push(route)
     if (this.debug) console.log('Adding route: ', route)
   }
@@ -166,4 +166,4 @@ class RestServer {
   }
 }
 
-module.exports = { RestServer }
+module.exports = { TrestleAPI }

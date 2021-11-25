@@ -1,5 +1,5 @@
-const { RestServer } = require('../classes/RestServer')
-const { Route } = require('../classes/Route')
+const { RestServer } = require('../classes/TrestleAPI')
+const { Route } = require('../classes/TrestleRoute')
 const fs = require('fs')
 require('dotenv').config()
 

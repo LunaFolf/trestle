@@ -13,7 +13,7 @@
     "node-fetch": "^2.6.1"
   },
   "scripts": {
-    "serve": "node testServer.js",
+    "serve": "node examples/testServer.js",
     "test": "jest --watch"
   },
   "dependencies": {

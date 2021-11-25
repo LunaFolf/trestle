@@ -1,13 +1,13 @@
 const EventEmitter = require('node:events')
 
-class Route extends EventEmitter {
+class TrestleRoute extends EventEmitter {
   path = undefined
   method = 'GET'
   public = false
 
   constructor(path, options) {
     super()
-    if (!path) throw new Error("Route 'path' field is a required parameter.")
+    if (!path) throw new Error("TrestleRoute 'path' field is a required parameter.")
     this.path = path
     if (options) {
       this.method = options.method || 'GET'
@@ -20,4 +20,4 @@ class Route extends EventEmitter {
   }
 }
 
-module.exports = { Route }
+module.exports = { TrestleRoute }

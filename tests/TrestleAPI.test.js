@@ -1,5 +1,5 @@
-const { RestServer } = require('../classes/RestServer')
-const { Route } = require('../classes/Route')
+const { TrestleAPI } = require('../classes/TrestleAPI')
+const { TrestleRoute } = require('../classes/TrestleRoute')
 const fetch = require('node-fetch')
 const fs = require('fs')
 const https = require('https')
@@ -24,14 +24,14 @@ const rawRoutes = [
 const routes = []
 
 rawRoutes.forEach(rawRoute => {
-  const route = new Route(rawRoute.path, { method: rawRoute.method, public: rawRoute.public })
+  const route = new TrestleRoute(rawRoute.path, { method: rawRoute.method, public: rawRoute.public })
   route.on('route_match', rawRoute.handler)
 
   routes.push(route)
 })
 
 test('Can create API with no errors', () => {
-  api = new RestServer({ port: 8081 })
+  api = new TrestleAPI({ port: 8081 })
   if (process.env.ssl_key && process.env.ssl_cert) {
     const key = fs.readFileSync(process.env.ssl_key).toString()
     const cert = fs.readFileSync(process.env.ssl_cert).toString()
@@ -50,7 +50,7 @@ test('Can create API with no errors', () => {
 })
 
 test('Can add preRoute on all routes', () => {
-  api.beforeEach((to, request) => {
+  api.beforeEachRoute((to, request) => {
     return {
       resolve: false,
       data: { 'hello': 'world!' }
