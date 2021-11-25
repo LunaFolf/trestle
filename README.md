@@ -19,6 +19,7 @@ npm install @whiskeedev/trestle
 ```
 Once installed, you can reference the API class by doing:
 ```javascript
+// WARNING: This class name will most likely change before the official release - please keep an eye on this guide.
 const { TrestleAPI } = require('@whiskeedev/trestle')
 ```
 
@@ -30,7 +31,7 @@ const api = new TrestleAPI({ port: 8081 })
 // define the SSL key and cert (at this moment in time, HTTPS is only available and SSL details ARE required)
 const key = fs.readFileSync(process.env.ssl_key).toString()
 const cert = fs.readFileSync(process.env.ssl_cert).toString()
-api.setSsl(key, cert)
+api.setSSL(key, cert)
 
 // Start the server
 api.init()
@@ -44,11 +45,12 @@ But wait, I hear you say, what about my routes? How do I define them?
 
 To create a route, use the `Route` class like so:
 ```javascript
+// WARNING: This class name will most likely change before the official release - please keep an eye on this guide.
 const { TrestleRoute } = require('@whiskeedev/trestle')
 
 const route = new TrestleRoute('my/https/path', {
   method: 'GET', // defaults to 'GET' - should accept any method other than 'OPTIONS' (only 'GET' and 'POST' have been tested as of right now)
-  public: true // defaults to false - doesn't change anything, yet...
+  public: true // defaults to false - doesn't change anything functionaly at the moment but in the future this can be used to bypass middleware.
 })
 
 route.on('route_match', (data) => {
