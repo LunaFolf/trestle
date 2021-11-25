@@ -1,5 +1,5 @@
 const https = require('https')
-const { getPositiveFlavour } = require('../../utils/flavourText')
+const { getPositiveFlavour } = require('./../../utils/flavourText')
 const url = require('url')
 const { TrestleRoute } = require('../TrestleRoute')
 
@@ -25,6 +25,8 @@ function getJsonDataFromRequestBody(requestBody, { contentType }) {
 
   return requestBody ? JSON.parse(requestBody) : null
 }
+
+let beforeEachRouteFncs = []
 
 class TrestleAPI {
   routes = []
@@ -52,6 +54,15 @@ class TrestleAPI {
     console.log(titleCard, 'Added new route', `${route.public ? 'Public' : 'Private'}`.yellow ,`[${route.method}] ${route.path}`.cyan)
 
     this.routes.push(route)
+  }
+
+  beforeEachRoute(callback) {
+    if (!callback) {
+      console.log(titleCard, 'callback in beforeEachRoute must be type of function.'.red)
+      return false
+    }
+
+    beforeEachRouteFncs.push(callback)
   }
 
   setSSL(key, cert) {
@@ -148,6 +159,28 @@ class TrestleAPI {
           const jsonBodyData = getJsonDataFromRequestBody(requestBody, { contentType: request.headers['content-type'] })
           const matchedRoute = self.matchRoute(q.pathname, method)
 
+          let passBody = {...jsonBodyData}
+
+          // Handle beforeEach Route
+          if (beforeEachRouteFncs.length) {
+            beforeEachRouteFncs.forEach(callback => {
+              const { resolve, data } = callback()
+              if (!resolve) {
+                response.writeHead(404, { 'Content-Type': 'application/json' })
+                response.write(convertToJsonString({
+                  status: 'error',
+                  message: 'resolve failure in beforeEachRoute'
+                }))
+                response.end()
+
+                console.log(titleCard, sourceIp, `Resolve Failure: [${method}] ${q.pathname}`.red)
+                return false
+              }
+
+              if (data) passBody.resolveData = data
+            })
+          }
+
           if (!matchedRoute || !matchedRoute.route) {
             response.writeHead(404, { 'Content-Type': 'application/json' })
             response.write(convertToJsonString({
@@ -167,7 +200,7 @@ class TrestleAPI {
           await route.handle({
             request: request,
             response: response,
-            bodyData: jsonBodyData,
+            bodyData: passBody,
             params
           })
 

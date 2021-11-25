@@ -1,5 +1,4 @@
-const { TrestleAPI } = require('../classes/TrestleAPI')
-const { TrestleRoute } = require('../classes/TrestleRoute')
+const { TrestleAPI, TrestleRoute } = require('../index')
 const fetch = require('node-fetch')
 const fs = require('fs')
 const https = require('https')
@@ -15,8 +14,14 @@ const rawRoutes = [
     path: '/testing/hello',
     method: 'GET',
     public: true,
-    handler ({ response }) {
-      response.write(JSON.stringify(expectedJsonResponse, null, 2))
+    handler ({ response, bodyData }) {
+
+      let jsonResponse = { ...expectedJsonResponse}
+      if (bodyData.resolveData) jsonResponse = bodyData.resolveData
+
+      console.debug(bodyData)
+
+      response.write(JSON.stringify(jsonResponse, null, 2))
     }
   }
 ]
@@ -36,7 +41,7 @@ test('Can create API with no errors', () => {
     const key = fs.readFileSync(process.env.ssl_key).toString()
     const cert = fs.readFileSync(process.env.ssl_cert).toString()
 
-    api.setSsl(key, cert)
+    api.setSSL(key, cert)
   } else throw new Error('SSL Creds missing, dumb nuts')
 
   expect(api).toMatchObject({
@@ -46,15 +51,6 @@ test('Can create API with no errors', () => {
     debug: false,
     blockedIps: [],
     validHosts: []
-  })
-})
-
-test('Can add preRoute on all routes', () => {
-  api.beforeEachRoute((to, request) => {
-    return {
-      resolve: false,
-      data: { 'hello': 'world!' }
-    }
   })
 })
 
@@ -101,5 +97,32 @@ test('Can initialise server and trigger route handler', async () => {
   expect(serverResponse).toEqual(
     expect.objectContaining(expectedJsonResponse)
   )
+  server.close()
+})
+
+test('Can add preRoute on all routes', async () => {
+  const resolveData = { 'hello': 'world!' }
+  api.beforeEachRoute((to, request) => {
+    return {
+      resolve: true,
+      data: resolveData
+    }
+  })
+
+  const server = await api.init()
+
+  // test response here
+  const serverResponse = await fetch('https://localhost:8081' + rawRoutes[0].path, {
+    agent: httpsAgent
+  }).then(async res => {
+    return res.json().then(json => {
+      return res.ok ? json : false
+    })
+  })
+
+  expect(serverResponse).toEqual(
+    expect.objectContaining(resolveData)
+  )
+
   server.close()
 })

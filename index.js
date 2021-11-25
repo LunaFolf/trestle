@@ -1,4 +1,6 @@
+// require('app-module-path').addPath(__dirname)
 const colors = require('colors')
+
 const { TrestleAPI } = require('./classes/TrestleAPI')
 const { TrestleRoute } = require('./classes/TrestleRoute')
 

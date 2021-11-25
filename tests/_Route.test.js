@@ -1,4 +1,4 @@
-const { TrestleRoute } = require('../classes/TrestleRoute')
+const { TrestleRoute } = require('../index')
 
 test('Created route contains required fields', () => {
   const route = new TrestleRoute('/test/route')
