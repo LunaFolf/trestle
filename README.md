@@ -1,12 +1,20 @@
 # Trestle
-Trestle is a bespoke rest API server and router combined into one.
+Trestle is a Node.js REST API Framework, based on Laravel/Lumen, built using my personal developer preferences.
 
-It was originally built for JaxBot, but was recently abstracted out into it's own npm package so it could be used for other TopHat Network­™ projects.
+If you don't like how things are built, feel free to suggest changes. Everything is made to my personal preferences, but I welcome improvements and discussions of best practices.
 
-It's currently still in early access/beta, and will probably stay that way till I've had it in a couple of different projects and I'm happy with how it functions.
+---
+
+Trestle's original code was built into one of my projects, JaxBot. Recently given the size of API code and the fact I wanted to start reusing it for other projects, I chose to extract the base functionality into its own package.
+
+The main focus, to begin with, is to build a functional and easy to use REST API. After that, other quality of life features that are expected of a framework will be implemented.
+
+---
+
+Because nearly all my experience is around using Vue.js, Laravel and other similarly related frameworks, you may notice similarities between Trestle's code/functionality and these frameworks when compared.
 
 ## Quick Warning
-As mentioned previously, Trestle was designed for the JaxBot project. While it has been abstracted, this early build is still tailored to suite the needs of JaxBot, and other TopHat projects.
+**Trestle is still currently in early access/beta, and will probably stay that way till I've had it in a couple of different projects and I'm happy with how it functions.**
 
 Until the first 1.0.0 version releases, I can't guarantee this package will work for you, help you, or be helpful in anyway.
 
