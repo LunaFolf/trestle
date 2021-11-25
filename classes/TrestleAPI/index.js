@@ -7,9 +7,7 @@ const titleCard = '[TestleAPI]'.yellow
 
 console.log(titleCard, 'API Created,', getPositiveFlavour())
 
-function convertToJsonString (json) {
-  return JSON.stringify(json, null, 2)
-}
+const convertToJsonString = (json) => JSON.stringify(json, null, 2)
 
 function getJsonDataFromRequestBody(requestBody, { contentType }) {
   requestBody = Buffer.concat(requestBody).toString()
@@ -26,25 +24,21 @@ function getJsonDataFromRequestBody(requestBody, { contentType }) {
   return requestBody ? JSON.parse(requestBody) : null
 }
 
-function handleJsonResponse(response, json, options) {
-  const statusCode = options?.statusCode || 200
+function handleJsonResponse (response, json, options) {
+  const statusCode = options.statusCode || 200
   response.writeHead(statusCode, { 'Content-Type': 'application/json' })
 
   let status = 'success'
   let data = json || null
   let message = options?.message || null
 
-  switch (statusCode.toString().charAt(0)) {
-    case '4':
-      status = 'fail'
-    case '5':
-      status = 'error'
-  }
+  if (statusCode >= 500) status = 'errot'
+  else if (statusCode >= 400) status = 'fail'
 
-  let responseObj = { status, data }
-  if (status !== 'success') responseObj.message = message
+  let responseJson = { status, data }
+  if (status !== 'success') responseJson.message = message
 
-  response.write(JSON.stringify(responseObj, null, 2))
+  response.write(convertToJsonString(responseJson))
 }
 
 let beforeEachRouteFncs = []
