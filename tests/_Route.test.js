@@ -1,7 +1,7 @@
-const { Route } = require('../classes/Route')
+const { TrestleRoute } = require('../index')
 
 test('Created route contains required fields', () => {
-  const route = new Route('/test/route')
+  const route = new TrestleRoute('/test/route')
 
   expect(route).toMatchObject({
     path: '/test/route',
@@ -10,8 +10,8 @@ test('Created route contains required fields', () => {
   })
 })
 
-test('Route emits appropriate event upon receiving handle data', () => {
-  const route = new Route('/test/route')
+test('TrestleRoute emits appropriate event upon receiving handle data', () => {
+  const route = new TrestleRoute('/test/route')
   let dummyMessage = null
 
   const sendData = {
@@ -25,7 +25,7 @@ test('Route emits appropriate event upon receiving handle data', () => {
 })
 
 test('Can create route with additional options', () => {
-  const route = new Route('/shiny/metal/ass', {
+  const route = new TrestleRoute('/shiny/metal/ass', {
     method: 'POST',
     public: true
   })

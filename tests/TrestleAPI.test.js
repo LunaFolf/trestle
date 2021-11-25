@@ -1,5 +1,4 @@
-const { RestServer } = require('../classes/RestServer')
-const { Route } = require('../classes/Route')
+const { TrestleAPI, TrestleRoute } = require('../index')
 const fetch = require('node-fetch')
 const fs = require('fs')
 const https = require('https')
@@ -15,8 +14,14 @@ const rawRoutes = [
     path: '/testing/hello',
     method: 'GET',
     public: true,
-    handler ({ response }) {
-      response.write(JSON.stringify(expectedJsonResponse, null, 2))
+    handler ({ response, bodyData }) {
+
+      let jsonResponse = { ...expectedJsonResponse}
+      if (bodyData.resolveData) jsonResponse = bodyData.resolveData
+
+      console.debug(bodyData)
+
+      response.write(JSON.stringify(jsonResponse, null, 2))
     }
   }
 ]
@@ -24,19 +29,19 @@ const rawRoutes = [
 const routes = []
 
 rawRoutes.forEach(rawRoute => {
-  const route = new Route(rawRoute.path, { method: rawRoute.method, public: rawRoute.public })
+  const route = new TrestleRoute(rawRoute.path, { method: rawRoute.method, public: rawRoute.public })
   route.on('route_match', rawRoute.handler)
 
   routes.push(route)
 })
 
 test('Can create API with no errors', () => {
-  api = new RestServer({ port: 8081 })
+  api = new TrestleAPI({ port: 8081 })
   if (process.env.ssl_key && process.env.ssl_cert) {
     const key = fs.readFileSync(process.env.ssl_key).toString()
     const cert = fs.readFileSync(process.env.ssl_cert).toString()
 
-    api.setSsl(key, cert)
+    api.setSSL(key, cert)
   } else throw new Error('SSL Creds missing, dumb nuts')
 
   expect(api).toMatchObject({
@@ -46,15 +51,6 @@ test('Can create API with no errors', () => {
     debug: false,
     blockedIps: [],
     validHosts: []
-  })
-})
-
-test('Can add preRoute on all routes', () => {
-  api.beforeEach((to, request) => {
-    return {
-      resolve: false,
-      data: { 'hello': 'world!' }
-    }
   })
 })
 
@@ -101,5 +97,32 @@ test('Can initialise server and trigger route handler', async () => {
   expect(serverResponse).toEqual(
     expect.objectContaining(expectedJsonResponse)
   )
+  server.close()
+})
+
+test('Can add preRoute on all routes', async () => {
+  const resolveData = { 'hello': 'world!' }
+  api.beforeEachRoute((to, request) => {
+    return {
+      resolve: true,
+      data: resolveData
+    }
+  })
+
+  const server = await api.init()
+
+  // test response here
+  const serverResponse = await fetch('https://localhost:8081' + rawRoutes[0].path, {
+    agent: httpsAgent
+  }).then(async res => {
+    return res.json().then(json => {
+      return res.ok ? json : false
+    })
+  })
+
+  expect(serverResponse).toEqual(
+    expect.objectContaining(resolveData)
+  )
+
   server.close()
 })

@@ -1,9 +1,11 @@
 const https = require('https')
-const { resolve } = require('path')
+const { getPositiveFlavour } = require('./../../utils/flavourText')
 const url = require('url')
-const { Route } = require('../Route')
+const { TrestleRoute } = require('../TrestleRoute')
 
-const titleCard = '[WskyRest HTTPS]'
+const titleCard = '[TestleAPI]'.yellow
+
+console.log(titleCard, 'API Created,', getPositiveFlavour())
 
 function convertToJsonString (json) {
   return JSON.stringify(json, null, 2)
@@ -24,7 +26,30 @@ function getJsonDataFromRequestBody(requestBody, { contentType }) {
   return requestBody ? JSON.parse(requestBody) : null
 }
 
-class RestServer {
+function handleJsonResponse(response, json, options) {
+  const statusCode = options?.statusCode || 200
+  response.writeHead(statusCode, { 'Content-Type': 'application/json' })
+
+  let status = 'success'
+  let data = json || null
+  let message = options?.message || null
+
+  switch (statusCode.toString().charAt(0)) {
+    case '4':
+      status = 'fail'
+    case '5':
+      status = 'error'
+  }
+
+  let responseObj = { status, data }
+  if (status !== 'success') responseObj.message = message
+
+  response.write(JSON.stringify(responseObj, null, 2))
+}
+
+let beforeEachRouteFncs = []
+
+class TrestleAPI {
   routes = []
   options = {}
   port = 443
@@ -42,14 +67,28 @@ class RestServer {
   }
 
   addRoute(route) {
-    if (!route instanceof Route) throw new Error("Provided route must be an instance of class 'WskyRoute'.")
+    if (!(route instanceof TrestleRoute)) {
+      console.log(titleCard, "Provided route must be an instance of class 'TrestleRoute'.".red)
+      return false
+    }
+
+    console.log(titleCard, 'Added new route', `${route.public ? 'Public' : 'Private'}`.yellow ,`[${route.method}] ${route.path}`.cyan)
+
     this.routes.push(route)
-    if (this.debug) console.log('Adding route: ', route)
   }
 
-  setSsl(key, cert) {
+  beforeEachRoute(callback) {
+    if (!callback) {
+      console.log(titleCard, 'callback in beforeEachRoute must be type of function.'.red)
+      return false
+    }
+
+    beforeEachRouteFncs.push(callback)
+  }
+
+  setSSL(key, cert) {
     if (!key || !cert) throw new Error('Both SSL Key and Cert are required when defining SSL')
-    if (this.debug) console.log('Setting SSL to the following', { key, cert })
+    console.log(titleCard, 'SSL Cert and Key OK, saving options now.')
     this.options = { key, cert }
   }
 
@@ -109,8 +148,8 @@ class RestServer {
 
   init() {
     const self = this
+    console.log(titleCard, `Port: ${this.port}`.cyan , 'Creating HTTPS Server...')
     return https.createServer(this.options, async function (request, response) {
-      if (self.debug) console.log({ request, response })
       // Check if the host is allowed
       const sourceIp = request.headers['x-forwarded-for'] || request.connection.remoteAddress
       const q = url.parse(request.url, true)
@@ -133,11 +172,35 @@ class RestServer {
               data: null
             }))
             response.end()
+
+            if (this.debug) console.log(titleCard, sourceIp, `[${method}] ${q.pathname}`.yellow)
             return
           }
 
           const jsonBodyData = getJsonDataFromRequestBody(requestBody, { contentType: request.headers['content-type'] })
           const matchedRoute = self.matchRoute(q.pathname, method)
+
+          let passBody = {...jsonBodyData}
+
+          // Handle beforeEach Route
+          if (beforeEachRouteFncs.length) {
+            beforeEachRouteFncs.forEach(callback => {
+              const { resolve, data } = callback()
+              if (!resolve) {
+                response.writeHead(404, { 'Content-Type': 'application/json' })
+                response.write(convertToJsonString({
+                  status: 'error',
+                  message: 'resolve failure in beforeEachRoute'
+                }))
+                response.end()
+
+                console.log(titleCard, sourceIp, `Resolve Failure: [${method}] ${q.pathname}`.red)
+                return false
+              }
+
+              if (data) passBody.resolveData = data
+            })
+          }
 
           if (!matchedRoute || !matchedRoute.route) {
             response.writeHead(404, { 'Content-Type': 'application/json' })
@@ -146,24 +209,32 @@ class RestServer {
               message: 'Route not found'
             }))
             response.end()
+
+            console.log(titleCard, sourceIp, `Unknown Route: [${method}] ${q.pathname}`.red)
             return false
           }
 
           const { route, params } = matchedRoute
           if (route.public === undefined) route.public = false
 
-          response.writeHead(200, { 'Content-Type': 'application/json' })
+          console.log(titleCard, sourceIp, `[${method}] ${q.pathname}`)
+
           await route.handle({
             request: request,
-            response: response,
-            bodyData: jsonBodyData,
+            response: {
+              _: response,
+              json: (json, options) => handleJsonResponse(response, json, options),
+              error: (statusCode, options) => handleJsonResponse(response, options?.data, { statusCode, ...options})
+            },
+            bodyData: passBody,
             params
           })
 
           response.end()
+          return true
         })
     }).listen(this.port)
   }
 }
 
-module.exports = { RestServer }
+module.exports = { TrestleAPI }
