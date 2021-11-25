@@ -25,7 +25,7 @@ function getJsonDataFromRequestBody(requestBody, { contentType }) {
 }
 
 function handleJsonResponse (response, json, options) {
-  const statusCode = options.statusCode || 200
+  const statusCode = options?.statusCode || 200
   response.writeHead(statusCode, { 'Content-Type': 'application/json' })
 
   let status = 'success'

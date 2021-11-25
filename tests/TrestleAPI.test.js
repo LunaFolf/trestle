@@ -7,7 +7,8 @@ require('dotenv').config()
 
 let api = null
 
-const expectedJsonResponse = { "boom": "baby!" }
+const requestJson = { "boom": "baby!" }
+const responseJson = { "status": "success", "data": requestJson }
 
 const rawRoutes = [
   {
@@ -15,13 +16,10 @@ const rawRoutes = [
     method: 'GET',
     public: true,
     handler ({ response, bodyData }) {
-
-      let jsonResponse = { ...expectedJsonResponse}
+      let jsonResponse = { ...requestJson}
       if (bodyData.resolveData) jsonResponse = bodyData.resolveData
 
-      console.debug(bodyData)
-
-      response.write(JSON.stringify(jsonResponse, null, 2))
+      response.json(jsonResponse)
     }
   }
 ]
@@ -95,7 +93,7 @@ test('Can initialise server and trigger route handler', async () => {
   })
   
   expect(serverResponse).toEqual(
-    expect.objectContaining(expectedJsonResponse)
+    expect.objectContaining(responseJson)
   )
   server.close()
 })
@@ -121,7 +119,10 @@ test('Can add preRoute on all routes', async () => {
   })
 
   expect(serverResponse).toEqual(
-    expect.objectContaining(resolveData)
+    expect.objectContaining({
+      status: 'success',
+      data: resolveData
+    })
   )
 
   server.close()
