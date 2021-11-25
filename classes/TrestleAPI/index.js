@@ -1,9 +1,11 @@
 const https = require('https')
-const { resolve } = require('path')
+const { getPositiveFlavour } = require('../../utils/flavourText')
 const url = require('url')
 const { TrestleRoute } = require('../TrestleRoute')
 
-const titleCard = '[WskyRest HTTPS]'
+const titleCard = '[TestleAPI]'.yellow
+
+console.log(titleCard, 'API Created,', getPositiveFlavour())
 
 function convertToJsonString (json) {
   return JSON.stringify(json, null, 2)
@@ -42,14 +44,19 @@ class TrestleAPI {
   }
 
   addRoute(route) {
-    if (!route instanceof TrestleRoute) throw new Error("Provided route must be an instance of class 'TrestleRoute'.")
+    if (!(route instanceof TrestleRoute)) {
+      console.log(titleCard, "Provided route must be an instance of class 'TrestleRoute'.".red)
+      return false
+    }
+
+    console.log(titleCard, 'Added new route', `${route.public ? 'Public' : 'Private'}`.yellow ,`[${route.method}] ${route.path}`.cyan)
+
     this.routes.push(route)
-    if (this.debug) console.log('Adding route: ', route)
   }
 
-  setSsl(key, cert) {
+  setSSL(key, cert) {
     if (!key || !cert) throw new Error('Both SSL Key and Cert are required when defining SSL')
-    if (this.debug) console.log('Setting SSL to the following', { key, cert })
+    console.log(titleCard, 'SSL Cert and Key OK, saving options now.')
     this.options = { key, cert }
   }
 
@@ -109,8 +116,8 @@ class TrestleAPI {
 
   init() {
     const self = this
+    console.log(titleCard, `Port: ${this.port}`.cyan , 'Creating HTTPS Server...')
     return https.createServer(this.options, async function (request, response) {
-      if (self.debug) console.log({ request, response })
       // Check if the host is allowed
       const sourceIp = request.headers['x-forwarded-for'] || request.connection.remoteAddress
       const q = url.parse(request.url, true)
@@ -133,6 +140,8 @@ class TrestleAPI {
               data: null
             }))
             response.end()
+
+            if (this.debug) console.log(titleCard, sourceIp, `[${method}] ${q.pathname}`.yellow)
             return
           }
 
@@ -146,6 +155,8 @@ class TrestleAPI {
               message: 'Route not found'
             }))
             response.end()
+
+            console.log(titleCard, sourceIp, `Unknown Route: [${method}] ${q.pathname}`.red)
             return false
           }
 
@@ -161,6 +172,9 @@ class TrestleAPI {
           })
 
           response.end()
+
+          console.log(titleCard, sourceIp, `[${method}] ${q.pathname}`.green)
+          return true
         })
     }).listen(this.port)
   }

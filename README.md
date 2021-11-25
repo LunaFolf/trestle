@@ -19,21 +19,21 @@ npm install @whiskeedev/trestle
 ```
 Once installed, you can reference the API class by doing:
 ```javascript
-const { RestServer } = require('@whiskeedev/trestle')
+const { TrestleAPI } = require('@whiskeedev/trestle')
 ```
 
 Once you've gotten your class, you can start setting up the server. There are a few options currently available, below is an example for setting up a basic server:
 ```javascript
 // create the server class, using port 8081 for listening
-const restServer = new RestServer({ port: 8081 })
+const api = new TrestleAPI({ port: 8081 })
 
 // define the SSL key and cert (at this moment in time, HTTPS is only available and SSL details ARE required)
 const key = fs.readFileSync(process.env.ssl_key).toString()
 const cert = fs.readFileSync(process.env.ssl_cert).toString()
-restServer.setSsl(key, cert)
+api.setSsl(key, cert)
 
 // Start the server
-restServer.init()
+api.init()
 ```
 
 _Whiskee, put a table here later with the options available for the server ~past whiskee_
@@ -44,9 +44,9 @@ But wait, I hear you say, what about my routes? How do I define them?
 
 To create a route, use the `Route` class like so:
 ```javascript
-const { Route } = require('@whiskeedev/trestle')
+const { TrestleRoute } = require('@whiskeedev/trestle')
 
-const route = new Route('my/https/path', {
+const route = new TrestleRoute('my/https/path', {
   method: 'GET', // defaults to 'GET' - should accept any method other than 'OPTIONS' (only 'GET' and 'POST' have been tested as of right now)
   public: true // defaults to false - doesn't change anything, yet...
 })
@@ -66,7 +66,7 @@ Kinda simple, kinda messy - I promise once we're out of abstraction and moving c
 
 Now all you have to do, is add the route to your server. You can do this before or after starting it, just do:
 ```javascript
-restServer.addRoute(route)
+api.addRoute(route)
 ```
 
 And viola - hopefully that worked... hopefully...

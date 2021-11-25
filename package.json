@@ -10,13 +10,15 @@
   },
   "devDependencies": {
     "jest": "^27.2.5",
-    "node-fetch": "^2.6.1"
+    "node-fetch": "^2.6.1",
+    "nodemon": "^2.0.15"
   },
   "scripts": {
-    "serve": "node examples/testServer.js",
+    "serve": "nodemon examples/testServer.js",
     "test": "jest --watch"
   },
   "dependencies": {
+    "colors": "^1.4.0",
     "dotenv": "^10.0.0"
   }
 }

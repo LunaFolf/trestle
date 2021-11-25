@@ -1,5 +1,4 @@
-const { RestServer } = require('../classes/TrestleAPI')
-const { Route } = require('../classes/TrestleRoute')
+const { TrestleAPI, TrestleRoute } = require('../index')
 const fs = require('fs')
 require('dotenv').config()
 
@@ -19,21 +18,21 @@ const rawRoutes = [
 const routes = []
 
 rawRoutes.forEach(rawRoute => {
-  const route = new Route(rawRoute.path, { method: rawRoute.method, public: rawRoute.public })
+  const route = new TrestleRoute(rawRoute.path, { method: rawRoute.method, public: rawRoute.public })
   route.on('route_match', rawRoute.handler)
   routes.push(route)
 })
 
-const wskyRestServer = new RestServer({ port: 8081, debug: true })
+const api = new TrestleAPI({ port: 8081, debug: false })
 if (process.env.ssl_key && process.env.ssl_cert) {
   const key = fs.readFileSync(process.env.ssl_key).toString()
   const cert = fs.readFileSync(process.env.ssl_cert).toString()
 
-  wskyRestServer.setSsl(key, cert)
+  api.setSSL(key, cert)
 } else throw new Error('SSL Creds missing, dumb nuts')
 
 routes.forEach(route => {
-  wskyRestServer.addRoute(route)
+  api.addRoute(route)
 })
 
-wskyRestServer.init()
+api.init()

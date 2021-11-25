@@ -1,5 +1,5 @@
-const { RestServer } = require('./classes/RestServer')
-const { Route } = require('./classes/Route')
+const colors = require('colors')
+const { TrestleAPI } = require('./classes/TrestleAPI')
+const { TrestleRoute } = require('./classes/TrestleRoute')
 
-exports.Route = Route
-exports.RestServer = RestServer
+module.exports = { TrestleAPI, TrestleRoute }
