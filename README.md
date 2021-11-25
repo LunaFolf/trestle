@@ -82,7 +82,7 @@ api.addRoute(route)
 And viola - hopefully that worked... hopefully...
 
 ### Useful information
-We use the (**JSend** specification)[https://github.com/omniti-labs/jsend], or at least _should_ be using it, for our API resonses. At the moment there is no way to overwrite this spec.
+We use the [https://github.com/omniti-labs/jsend](**JSend** specification), or at least _should_ be using it, for our API resonses. At the moment there is no way to overwrite this spec.
 
 ## Support
 I'm not really in a position to offer active support, especially seeing how this package is still in beta - however, if you're up for a quick informal chat then I might be able to help if you contact me via Discord.
