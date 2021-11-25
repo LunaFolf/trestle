@@ -26,6 +26,27 @@ function getJsonDataFromRequestBody(requestBody, { contentType }) {
   return requestBody ? JSON.parse(requestBody) : null
 }
 
+function handleJsonResponse(response, json, options) {
+  const statusCode = options?.statusCode || 200
+  response.writeHead(statusCode, { 'Content-Type': 'application/json' })
+
+  let status = 'success'
+  let data = json || null
+  let message = options?.message || null
+
+  switch (statusCode.toString().charAt(0)) {
+    case '4':
+      status = 'fail'
+    case '5':
+      status = 'error'
+  }
+
+  let responseObj = { status, data }
+  if (status !== 'success') responseObj.message = message
+
+  response.write(JSON.stringify(responseObj, null, 2))
+}
+
 let beforeEachRouteFncs = []
 
 class TrestleAPI {
@@ -196,17 +217,20 @@ class TrestleAPI {
           const { route, params } = matchedRoute
           if (route.public === undefined) route.public = false
 
-          response.writeHead(200, { 'Content-Type': 'application/json' })
+          console.log(titleCard, sourceIp, `[${method}] ${q.pathname}`)
+
           await route.handle({
             request: request,
-            response: response,
+            response: {
+              _: response,
+              json: (json, options) => handleJsonResponse(response, json, options),
+              error: (statusCode, options) => handleJsonResponse(response, options?.data, { statusCode, ...options})
+            },
             bodyData: passBody,
             params
           })
 
           response.end()
-
-          console.log(titleCard, sourceIp, `[${method}] ${q.pathname}`.green)
           return true
         })
     }).listen(this.port)
