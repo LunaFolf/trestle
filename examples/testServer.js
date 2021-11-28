@@ -10,7 +10,7 @@ const rawRoutes = [
     method: 'GET',
     public: true,
     handler ({ response }) {
-      response.write(JSON.stringify(expectedJsonResponse, null, 2))
+      response.json(expectedJsonResponse)
     }
   }
 ]
