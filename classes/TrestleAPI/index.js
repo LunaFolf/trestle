@@ -1,4 +1,3 @@
-const https = require('https')
 const { getPositiveFlavour } = require('./../../utils/flavourText')
 const url = require('url')
 const { TrestleRoute } = require('../TrestleRoute')
@@ -49,6 +48,7 @@ class TrestleAPI {
   options = {}
   port = 443
   debug = false
+  secureMode = true
 
   blockedIps = []
   validHosts = []
@@ -143,8 +143,17 @@ class TrestleAPI {
 
   init() {
     const self = this
-    console.log(titleCard, `Port: ${this.port}`.cyan , 'Creating HTTPS Server...')
-    return https.createServer(this.options, async function (request, response) {
+
+    let httpProtocol
+
+    if (self.secureMode) httpProtocol = require('https')
+    else {
+      httpProtocol = require('http')
+      console.warn(titleCard, 'WARNING: Running in insecure mode, this is not recommended.'.red)
+    }
+
+    console.log(titleCard, `Port: ${this.port}`.cyan , 'Creating Listening Server...')
+    return httpProtocol.createServer(this.options, async function (request, response) {
       // Check if the host is allowed
       const sourceIp = request.headers['x-forwarded-for'] || request.connection.remoteAddress
       const q = url.parse(request.url, true)
