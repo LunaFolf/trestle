@@ -30,12 +30,18 @@ function handleJsonResponse (response, json, options) {
   let status = 'success'
   let data = json || null
   let message = options?.message || null
+  let code = options?.code || null
 
-  if (statusCode >= 500) status = 'errot'
+  if (code) message = `[${code}] ${message}`
+
+  if (statusCode >= 500) status = 'error'
   else if (statusCode >= 400) status = 'fail'
 
   let responseJson = { status, data }
-  if (status !== 'success') responseJson.message = message
+  if (status !== 'success') {
+    responseJson.message = message
+    responseJson.code = code
+  }
 
   response.write(convertToJsonString(responseJson))
   response.end()
@@ -181,20 +187,31 @@ class TrestleAPI {
 
           let passBody = {...jsonBodyData}
 
+          let beforeEachFailedResolve = false
+
           // Handle beforeEach Route
           if (beforeEachRouteFncs.length) {
-            beforeEachRouteFncs.forEach(callback => {
-              const { resolve, data } = callback()
+            await Promise.all(beforeEachRouteFncs.map(async callback => {
+              const { resolve, data, code, message } = await callback(matchedRoute, request)
               if (!resolve) {
-                handleJsonResponse(response, null, { statusCode: 500, message: 'Resolve failure' })
+                handleJsonResponse(response, null, {
+                  statusCode: 500,
+                  message: message || 'Resolution Failure',
+                  code: code || 'BEFORE_EACH_ROUTE_FAILURE'
+                })
 
-                console.log(titleCard, sourceIp, `Resolve Failure: [${method}] ${q.path}`.red)
-                return false
+                console.log(titleCard, sourceIp, `Resolution Failure: [${method}] ${q.path}`.red)
+                return beforeEachFailedResolve = true
               }
 
-              if (data) passBody.resolveData = data
-            })
+              if (data) passBody = {
+                ...passBody,
+                ...data
+              }
+            }))
           }
+
+          if (beforeEachFailedResolve) return false
 
           if (!matchedRoute || !matchedRoute.route) {
             handleJsonResponse(response, null, { statusCode: 404, message: 'Route not found' })
@@ -212,8 +229,12 @@ class TrestleAPI {
             request: request,
             response: {
               _: response,
+              ok: () => {
+                response.writeHead(200, { 'Content-Type': 'application/json' })
+                response.end()
+              },
               json: (json, options) => handleJsonResponse(response, json, options),
-              error: (statusCode, options) => handleJsonResponse(response, options?.data, { statusCode, ...options})
+              error: (statusCode, message, options) => handleJsonResponse(response, options?.data, { statusCode, message, ...options})
             },
             bodyData: passBody,
             params,
