@@ -20,7 +20,14 @@ function getJsonDataFromRequestBody(requestBody, { contentType }) {
     requestBody = JSON.stringify(parsedRequestBody)
   }
 
-  return requestBody ? JSON.parse(requestBody) : null
+  let jsonData = null
+  try {
+    jsonData = JSON.parse(requestBody)
+  } catch (err) {
+    console.error(titleCard, 'Error parsing request body:', err)
+  }
+
+  return jsonData
 }
 
 function handleJsonResponse (response, json, options) {

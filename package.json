@@ -1,6 +1,6 @@
 {
   "name": "@whiskeedev/trestle",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Bespoke Rest API with built in router.",
   "main": "index.js",
   "author": "WhiskeeDev <dev@whiskee.me>",
