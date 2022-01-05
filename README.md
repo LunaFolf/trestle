@@ -1,12 +1,13 @@
-# Trestle
+# Trestle [![NPM Version](https://img.shields.io/npm/v/@whiskeedev/trestle.svg?style=flat-square)](https://www.npmjs.com/package/@whiskeedev/trestle)
 Trestle is a Node.js REST API Framework, based on Laravel/Lumen, built using my personal developer preferences.
 
 If you don't like how things are built, feel free to suggest changes. Everything is made to my personal preferences, but I welcome improvements and discussions of best practices.
 
 ---
 
-## Quick Warning
-**Trestle is still currently in early access/beta, and will probably stay that way till I've had it in a couple of different projects and I'm happy with how it functions.**
+## WARNINGS
+- requries node version v16 or higher - don't actually remember why, I'll update this when I can remember.
+- Still in early access/beta, and will probably stay that way till I've had it in a couple of different projects and I'm happy with how it functions.
 
 ---
 
