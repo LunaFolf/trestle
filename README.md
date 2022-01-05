@@ -5,83 +5,95 @@ If you don't like how things are built, feel free to suggest changes. Everything
 
 ---
 
-Trestle's original code was built into one of my projects, JaxBot. Recently given the size of API code and the fact I wanted to start reusing it for other projects, I chose to extract the base functionality into its own package.
-
-The main focus, to begin with, is to build a functional and easy to use REST API. After that, other quality of life features that are expected of a framework will be implemented.
-
----
-
-Because nearly all my experience is around using Vue.js, Laravel and other similarly related frameworks, you may notice similarities between Trestle's code/functionality and these frameworks when compared.
-
 ## Quick Warning
 **Trestle is still currently in early access/beta, and will probably stay that way till I've had it in a couple of different projects and I'm happy with how it functions.**
 
-Until the first 1.0.0 version releases, I can't guarantee this package will work for you, help you, or be helpful in anyway.
+---
 
-## Quick setup guide
-writing setup guides is not my strong suite, so bear with me on this.
+## Usage
+requiring, configuring and initiating your API.
 
-You can install the package using npm like so:
-```
-npm install @whiskeedev/trestle
-```
-Once installed, you can reference the API class by doing:
+This basic example is the quickest way to set things up, but runs in insecure mode (no SSL). You can find more information further in the readme.
 ```javascript
-// WARNING: This class name will most likely change before the official release - please keep an eye on this guide.
 const { TrestleAPI } = require('@whiskeedev/trestle')
-```
 
-Once you've gotten your class, you can start setting up the server. There are a few options currently available, below is an example for setting up a basic server:
-```javascript
-// create the server class, using port 8081 for listening
+// Create a new TrestleAPI instance
 const api = new TrestleAPI({ port: 8081 })
+api.secureMode = false // Without SSL Credentials, Trestle API can only be used in insecure mode.
 
-// define the SSL key and cert (at this moment in time, HTTPS is only available and SSL details ARE required)
-const key = fs.readFileSync(process.env.ssl_key).toString()
-const cert = fs.readFileSync(process.env.ssl_cert).toString()
-api.setSSL(key, cert)
-
-// Start the server
+// Start the API
 api.init()
 ```
 
-_Whiskee, put a table here later with the options available for the server ~past whiskee_
+For more details on `TrestleAPI`, check the [options readme](/classes/TrestleAPI/options.md).
 
-Congratulations! You have a server set up! Wasn't that _so_ easy?
+Congratulations! You now have a running http server! However, you currently have no routes... let's change that!
 
-But wait, I hear you say, what about my routes? How do I define them?
+> We recommend adding your routes before you `api.init()`, however, Trestle is designed so that routes can be added during runtime - It's just easier if your routes are ready to go before you start listening for requests!
 
-To create a route, use the `Route` class like so:
+Here's the basics to create a new TrestleRoute, and adding it to your API.
 ```javascript
-// WARNING: This class name will most likely change before the official release - please keep an eye on this guide.
 const { TrestleRoute } = require('@whiskeedev/trestle')
 
-const route = new TrestleRoute('my/https/path', {
-  method: 'GET', // defaults to 'GET' - should accept any method other than 'OPTIONS' (only 'GET' and 'POST' have been tested as of right now)
-  public: true // defaults to false - doesn't change anything functionaly at the moment but in the future this can be used to bypass middleware.
-})
+// Define the details of our route.
+const exampleRouteObj = {
+  path: '/hello/world',
+  options: {
+    method: 'GET', // Defaults to 'GET', works with most HTTP methods.
+    public: true // Defaults to false. Isn't used by the Framework, but useful when defining beforeRoute functions.
+  },
+  async handler ({ response }) {
+    console.log('Hello! My route was hit!')
 
-route.on('route_match', (data) => {
-  // Handle what should happen when the route is succesfully matched.
-  /**
-   * The data object contains the following properties:
-   * request - the original raw request from the https server
-   * response - the response, use this to return data to the requester.
-   * bodyData - a formatted version of the bodyData that was submitted, hopefully in JSON.
-   * params - if you're route path contained a param (i.e. /user/:id) the value will be stored with the key used in the path.
-   */
-})
+    response.json({
+      testing: "hello world!"
+    })
+  }
+}
+
+// Create a TrestleRoute from this object.
+const exampleRoute = new TrestleRoute(exampleRouteObj.path, exampleRouteObj.options)
+exampleRoute.on('route_match', exampleRouteObj.handler)
+
+// Add the newly created route to the API.
+api.addRoute(exampleRoute)
 ```
-Kinda simple, kinda messy - I promise once we're out of abstraction and moving closer to actual 1.0.0 launch this will be much easier and cleaned up.
 
-Now all you have to do, is add the route to your server. You can do this before or after starting it, just do:
+And there we go! A functioning API! The example shown above is just one method of creating and adding your Routes.
+
+Another method, which I personally use, is to [define your routes in arrays, in seperate files](/examples/01_serverWithRouting/index.js). Then, dynamically search the directory,
+require them, add them to one array and then iterate over that array to create the routes and add them to the API.
+
+For more details on `TrestleRoute`, check the [options readme](/classes/TrestleRoute/options.md).
+
+---
+
+## Secure Mode (SSL)
+
+To use SSL Secure mode, you'll need to be able to provide a SSL Key and a SSL Certificate.
+I highly recommend, if you're not already, using a package such as [dotenv](https://www.npmjs.com/package/dotenv) and defining your file paths that way. Here is a quick example:
 ```javascript
-api.addRoute(route)
+require('dotenv').config()
+const { TrestleAPI } = require('@whiskeedev/trestle')
+const fs = require('fs')
+
+// Create a new TrestleAPI instance
+const secureMode = true
+
+const api = new TrestleAPI({ port: 8081 })
+api.secureMode = secureMode
+
+if (secureMode && (process.env.SSL_KEY && process.env.SSL_CERT)) {
+  const key = fs.readFileSync(process.env.SSL_KEY).toString()
+  const cert = fs.readFileSync(process.env.SSL_CERT).toString()
+
+  api.setSSL(key, cert)
+} else if (secureMode) throw new Error('SSL Creds missing')
+
+api.init()
 ```
 
-And viola - hopefully that worked... hopefully...
-
-### Useful information
+## Useful information
 We use the [**JSend** specification](https://github.com/omniti-labs/jsend), or at least _should_ be using it, for our API resonses. At the moment there is no way to overwrite this spec.
 
 ## Support
