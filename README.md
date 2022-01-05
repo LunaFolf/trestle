@@ -61,7 +61,7 @@ api.addRoute(exampleRoute)
 
 And there we go! A functioning API! The example shown above is just one method of creating and adding your Routes.
 
-Another method, which I personally use, is to [define your routes in arrays, in seperate files](/examples/01_serverWithRouting/index.js). Then, dynamically search the directory,
+Another method, which I personally use, is to [define your routes in arrays, in seperate files](/examples/01_serverWithRouting). Then, dynamically search the directory,
 require them, add them to one array and then iterate over that array to create the routes and add them to the API.
 
 For more details on `TrestleRoute`, check the [options readme](/classes/TrestleRoute/options.md).
