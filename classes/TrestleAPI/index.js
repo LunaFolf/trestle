@@ -2,22 +2,26 @@ const { getPositiveFlavour } = require('./../../utils/flavourText')
 const url = require('url')
 const { TrestleRoute } = require('../TrestleRoute')
 
-const titleCard = '[TestleAPI]'.yellow
+const titleCard = '[TrestleAPI]'.yellow
 
 console.log(titleCard, 'API Created,', getPositiveFlavour())
 
 const convertToJsonString = (json) => JSON.stringify(json, null, 2)
 
 function getJsonDataFromRequestBody(requestBody, { contentType }) {
-  requestBody = Buffer.concat(requestBody).toString()
+  requestBody = Buffer.concat(requestBody)?.toString() || null
 
-  if (contentType === 'application/x-www-form-urlencoded') {
-    let parsedRequestBody = {}
-    requestBody.split('&').forEach(param => {
-      let splitParam = param.split('=')
-      parsedRequestBody[splitParam[0]] = splitParam[1].replace('+', ' ')
-    })
-    requestBody = JSON.stringify(parsedRequestBody)
+  try {
+    if (contentType === 'application/x-www-form-urlencoded') {
+      let parsedRequestBody = {}
+      requestBody.split('&')?.forEach(param => {
+        let splitParam = param.split('=')
+        parsedRequestBody[splitParam[0]] = splitParam[1].replace('+', ' ')
+      })
+      requestBody = JSON.stringify(parsedRequestBody)
+    }
+  } catch (err) {
+    console.error(titleCard, 'Error parsing request body:', { err, requestBody })
   }
 
   let jsonData = null
