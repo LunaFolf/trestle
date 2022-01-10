@@ -173,10 +173,30 @@ class TrestleAPI {
 
     console.log(titleCard, `Port: ${this.port}`.cyan , 'Creating Listening Server...')
     return httpProtocol.createServer(this.options, async function (request, response) {
-      // Check if the host is allowed
+      const responseFncs = getResHelpers(response)
+
       const sourceIp = request.headers['x-forwarded-for'] || request.connection.remoteAddress
       const q = url.parse(request.url, true)
       const method = request.method
+
+      // Check if the host is allowed
+      if (self.validHosts.length > 0) {
+        const host = request.headers.host || 'NO HOST'
+        if (!self.validHosts.includes(host)) {
+          console.error(titleCard, `Blocked request from ${sourceIp} for invalid host ${host}`.bgRed)
+          responseFncs.error(403, 'Invalid Host')
+          return
+        }
+      }
+
+      // Check if the IP is allowed
+      if (self.blockedIps.length > 0) {
+        if (self.blockedIps.includes(sourceIp)) {
+          console.error(titleCard, `Blocked request from ${sourceIp} for blocked IP`.bgRed)
+          responseFncs.error(403, 'Blocked IP')
+          return
+        }
+      }
 
       response.setHeader('Access-Control-Allow-Origin', '*')
       response.setHeader('Access-Control-Allow-Headers', 'jax-client-token, authorization, content-type')
@@ -205,7 +225,9 @@ class TrestleAPI {
           // Handle beforeEach Route
           if (beforeEachRouteFncs.length) {
             await Promise.all(beforeEachRouteFncs.map(async callback => {
-              const { resolve, data, code, message } = await callback(matchedRoute, request)
+              let { resolve, data, code, message } = await callback(matchedRoute, request)
+              code = code || 'BEFORE_EACH_ROUTE_FAILURE'
+              message = message || 'Resolution Failure'
               if (!resolve) {
                 handleJsonResponse(response, null, {
                   statusCode: 500,
@@ -213,7 +235,7 @@ class TrestleAPI {
                   code: code || 'BEFORE_EACH_ROUTE_FAILURE'
                 })
 
-                console.log(titleCard, sourceIp, `Resolution Failure: [${method}] ${q.path}`.red)
+                console.log(titleCard, sourceIp, `[${code.red}]`.bgBlack, `${message}:`, `[${method}] ${q.path}`.red)
                 return beforeEachFailedResolve = true
               }
 
@@ -242,12 +264,7 @@ class TrestleAPI {
             request: request,
             response: {
               _: response,
-              ok: () => {
-                response.writeHead(200, { 'Content-Type': 'application/json' })
-                response.end()
-              },
-              json: (json, options) => handleJsonResponse(response, json, options),
-              error: (statusCode, message, options) => handleJsonResponse(response, options?.data, { statusCode, message, ...options})
+              ...responseFncs
             },
             bodyData: passBody,
             params,
@@ -258,6 +275,19 @@ class TrestleAPI {
         })
     }).listen(this.port)
   }
+}
+
+function getResHelpers (response) {
+  const methods = {
+    ok: () => {
+      response.writeHead(200, { 'Content-Type': 'application/json' })
+      response.end()
+    },
+    json: (json, options) => handleJsonResponse(response, json, options),
+    error: (statusCode, message, options) => handleJsonResponse(response, options?.data, { statusCode, message, ...options })
+  }
+
+  return methods
 }
 
 module.exports = { TrestleAPI }

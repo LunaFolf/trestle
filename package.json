@@ -14,8 +14,7 @@
     "nodemon": "^2.0.15"
   },
   "scripts": {
-    "test": "jest --watch",
-    "serve": "nodemon examples/01_serverWithRouting/index.js"
+    "test": "jest --watch"
   },
   "dependencies": {
     "colors": "^1.4.0",
