@@ -215,7 +215,8 @@ class TrestleAPI {
             return
           }
 
-          const jsonBodyData = getJsonDataFromRequestBody(requestBody, { contentType: request.headers['content-type'] })
+          const jsonBodyData = (!requestBody || requestBody.length < 1) ? {} :
+            getJsonDataFromRequestBody(requestBody, { contentType: request.headers['content-type'] })
           const matchedRoute = self.matchRoute(q.pathname, method)
 
           let passBody = {...jsonBodyData}
