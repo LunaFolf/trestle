@@ -10,27 +10,27 @@ const convertToJsonString = (json) => JSON.stringify(json, null, 2)
 
 function getJsonDataFromRequestBody(requestBody, { contentType }) {
   requestBody = Buffer.concat(requestBody)?.toString() || null
+  let jsonData = {}
+
+  if (!requestBody || requestBody.length < 1) {
+    console.warn(titleCard, 'No request body found'.bgYellow.black)
+    return jsonData
+  }
 
   try {
     if (contentType === 'application/x-www-form-urlencoded') {
-      let parsedRequestBody = {}
-      requestBody.split('&')?.forEach(param => {
-        let splitParam = param.split('=')
-        parsedRequestBody[splitParam[0]] = splitParam[1].replace('+', ' ')
+      requestBody.split('&').forEach(item => {
+        const [key, value] = item.split('=')
+        jsonData[key] = decodeURIComponent(value)
       })
-      requestBody = JSON.stringify(parsedRequestBody)
+    } else if (contentType === 'application/json') {
+      jsonData = JSON.parse(requestBody)
+    } else {
+      console.warn(titleCard, 'Unsupported Content-Type:'.bgYellow.black, contentType)
+      jsonData = null
     }
   } catch (err) {
-    console.error(titleCard, 'Error parsing request body:', { err, requestBody })
-  }
-
-  let jsonData = null
-  if (requestBody && requestBody.length > 0) {
-    try {
-      jsonData = JSON.parse(requestBody)
-    } catch (err) {
-      console.error(titleCard, 'Error parsing request body:', { err, requestBody })
-    }
+    console.error(titleCard, `Error parsing ${contentType} body:`.bgRed, { requestBody, err})
   }
 
   return jsonData
@@ -168,7 +168,7 @@ class TrestleAPI {
     if (self.secureMode) httpProtocol = require('https')
     else {
       httpProtocol = require('http')
-      console.warn(titleCard, 'WARNING: Running in insecure mode, this is not recommended.'.red)
+      console.warn(titleCard, 'WARNING: Running in insecure mode, this is not recommended.'.bgYellow.red)
     }
 
     console.log(titleCard, `Port: ${this.port}`.cyan , 'Creating Listening Server...')
