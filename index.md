@@ -1,3 +1,5 @@
+[![NPM Version](https://img.shields.io/npm/v/@whiskeedev/trestle.svg?style=flat-square)](https://www.npmjs.com/package/@whiskeedev/trestle)
+
 Trestle is a Node.js REST API Framework, based on Laravel/Lumen, built using my personal preferences and experience as, primarily, a Frontend Developer.
 
 ### WARNINGS
