@@ -1,13 +1,25 @@
 # Trestle [![NPM Version](https://img.shields.io/npm/v/@whiskeedev/trestle.svg?style=flat-square)](https://www.npmjs.com/package/@whiskeedev/trestle)
-Trestle is a Node.js REST API Framework, based on Laravel/Lumen, built using my personal developer preferences.
+Trestle is a Node.js REST API Package, based on Laravel/Lumen, built using my personal developer preferences.
 
 If you don't like how things are built, feel free to suggest changes. Everything is made to my personal preferences, but I welcome improvements and discussions of best practices.
 
 ---
 
-## WARNINGS
-- requries node version v16 or higher - don't actually remember why, I'll update this when I can remember.
+## Things worth knowing
+- Requires node version v16 or higher.
 - Still in early access/beta, and will probably stay that way till I've had it in a couple of different projects and I'm happy with how it functions.
+
+---
+
+## Coming Soon™
+Some features are still in development, or even still being thought out. It may be a while before they're added, or it could be tomorrow. Once I'm a bit more neatened out, I'll create a trello or something for people to follow along.
+
+- [x] Main TrestleAPI component for handling... well, everything.
+- [x] TrestleRoute Class.
+- [ ] TrestleRouter component, for a more streamlined approach of managing routes.
+- [ ] TrestleDB - utilise [sequelize](https://www.npmjs.com/package/sequelize) to handle DB init, creating models, optional automatic routes and route resources.
+- [ ] TrestleAuth - JWT, Password Encryption, the usual jazz.
+- [ ] Middleware and Transformer - Still not figured out how I want to approach this yet, but I definitely want the functionality. 
 
 ---
 
@@ -93,6 +105,7 @@ if (secureMode && (process.env.SSL_KEY && process.env.SSL_CERT)) {
 
 api.init()
 ```
+---
 
 ## Useful information
 We use the [**JSend** specification](https://github.com/omniti-labs/jsend), or at least _should_ be using it, for our API resonses. At the moment there is no way to overwrite this spec.
