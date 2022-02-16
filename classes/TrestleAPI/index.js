@@ -157,6 +157,14 @@ class TrestleAPI {
       })
     }
 
+    if (this.debug) {
+      console.debug({
+        routesWithMatchingMethod,
+        paramLocations,
+        res: { route, params }
+      })
+    }
+
     return { route, params }
   }
 
@@ -211,7 +219,7 @@ class TrestleAPI {
           if (q.pathname === '/' || method === 'OPTIONS') {
             handleJsonResponse(response, null, { statusCode: 200 })
 
-            if (this.debug) console.log(titleCard, sourceIp, `[${method}] ${q.path}`.yellow)
+            if (this.debug) console.debug(titleCard, sourceIp, `[${method}] ${q.path}`.yellow)
             return
           }
 
@@ -260,6 +268,15 @@ class TrestleAPI {
           if (route.public === undefined) route.public = false
 
           console.log(titleCard, sourceIp, `[${method}] ${q.path}`)
+
+          if (this.debug) {
+            console.debug({
+              responseFncs,
+              passBody,
+              params,
+              query: {...q.query}
+            })
+          }
 
           await route.handle({
             request: request,

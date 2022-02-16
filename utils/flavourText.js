@@ -1,8 +1,11 @@
 const positiveFlavourLines = [
   "did you buy it dinner first?",
   ("what, you egg? " + "[He stabs him]".italic),
-  "+15 social credit.",
   "Hello there.",
+  "You want a cheez it fool?",
+  "You smell different when you're awake...".italic,
+  "I'm not a bot, I'm a human.",
+  "H A M P T E R".rainbow
 ]
 
 const errorFlavourLines = [
