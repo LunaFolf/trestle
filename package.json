@@ -4,6 +4,15 @@
   "description": "Bespoke Rest API with built in router.",
   "main": "index.js",
   "author": "WhiskeeDev <dev@whiskee.me>",
+  "keywords": [
+    "trestle",
+    "framework",
+    "rest",
+    "restful",
+    "api",
+    "router",
+    "http"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/WhiskeeDev/trestle.git"
