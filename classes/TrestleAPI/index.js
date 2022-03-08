@@ -216,12 +216,7 @@ class TrestleAPI {
       request
         .on('data', data => requestBody.push(data))
         .on('end', async function () {
-          if (q.pathname === '/' || method === 'OPTIONS') {
-            handleJsonResponse(response, null, { statusCode: 200 })
-
-            if (this.debug) console.debug(titleCard, sourceIp, `[${method}] ${q.path}`.yellow)
-            return
-          }
+          if (method === 'OPTIONS') return handlePreflight(response, { path: q.path, sourceIp, method })
 
           const jsonBodyData = (!requestBody || requestBody.length < 1) ? {} :
             getJsonDataFromRequestBody(requestBody, { contentType: request.headers['content-type'] })
@@ -258,6 +253,7 @@ class TrestleAPI {
           if (beforeEachFailedResolve) return false
 
           if (!matchedRoute || !matchedRoute.route) {
+            if (['/', '/favicon.ico'].includes(q.pathname)) return handlePreflight(response, { path: q.path, sourceIp, method })
             handleJsonResponse(response, null, { statusCode: 404, message: 'Route not found' })
 
             console.log(titleCard, sourceIp, `Unknown Route: [${method}] ${q.path}`.red)
@@ -293,6 +289,13 @@ class TrestleAPI {
         })
     }).listen(this.port)
   }
+}
+
+function handlePreflight(response, { path, sourceIp, method }) {
+  handleJsonResponse(response, null, { statusCode: 200 })
+
+  if (TrestleAPI.debug) console.debug(titleCard, sourceIp, `[${method}] ${path}`.yellow)
+  return
 }
 
 function getResHelpers (response) {

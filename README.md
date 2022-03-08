@@ -16,10 +16,12 @@ Some features are still in development, or even still being thought out. It may 
 
 - [x] Main TrestleAPI component for handling... well, everything.
 - [x] TrestleRoute Class.
-- [ ] TrestleRouter component, for a more streamlined approach of managing routes.
-- [ ] TrestleDB - utilise [sequelize](https://www.npmjs.com/package/sequelize) to handle DB init, creating models, optional automatic routes and route resources.
+- [ ] TrestleRouter component.
+- [ ] TrestleDB - [sequelize](https://www.npmjs.com/package/sequelize).
 - [ ] TrestleAuth - JWT, Password Encryption, the usual jazz.
-- [ ] Middleware and Transformer - Still not figured out how I want to approach this yet, but I definitely want the functionality. 
+- [ ] Middleware and Transformer - Still figuring this one out.
+
+Track progress on [the Trello board](https://trello.com/b/ANKeEOV8/trestle).
 
 ---
 
