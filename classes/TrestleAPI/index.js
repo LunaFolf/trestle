@@ -305,6 +305,11 @@ function getResHelpers (response) {
       response.end()
     },
     json: (json, options) => handleJsonResponse(response, json, options),
+    redirect: (url) => {
+      console.log(titleCard, 'Redirecting to:'.bgYellow.red, url)
+      response.writeHead(302, { Location: url })
+      response.end()
+    },
     error: (statusCode, message, options) => handleJsonResponse(response, options?.data, { statusCode, message, ...options })
   }
 
