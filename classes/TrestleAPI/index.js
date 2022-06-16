@@ -304,6 +304,11 @@ function getResHelpers (response) {
       response.writeHead(200, { 'Content-Type': 'application/json' })
       response.end()
     },
+    text: (text) => {
+      response.writeHead(200, { 'Content-Type': 'text/plain' })
+      response.write(text)
+      response.end()
+    },
     json: (json, options) => handleJsonResponse(response, json, options),
     redirect: (url) => {
       console.log(titleCard, 'Redirecting to:'.bgYellow.red, url)
