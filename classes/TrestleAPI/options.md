@@ -2,13 +2,18 @@
 
 The TrestleAPI Class is used to define the necessary configuration and initalise a HTTP, or HTTPS, listen server.
 
-## construction `({ port, options, debug, blockedIps, validHosts })`
+## construction `({ port, options, debug, blockedIps, validHosts, secureMode, specStrict, appName, appDescription, appVersion })`
 
 - `port` [Number/String] Port that the http/https server will listen on.
 - `options` [Object] object passed to the first argument of `createServer` when creating the listener.
 - `debug` [Boolean] enables additional logging from TrestleAPI (verbose).
 - `blockedIps` [Array] Not currently in use, will later be used to filter and ban incoming requests.
 - `validHosts` [Array] Not currently in use, will later be used to filter and ban incoming requests.
+- `secureMode` [Boolean] Should SSL mode be used?
+- `specStrict` [Boolean] If true, the app will throw an error and refuse to start if any path/route is not OpenAPI 3.0.0 compliant.
+- `appName` [String] Name of the App, used for the Spec.
+- `appDescription` [String] Description of the App, used for the Spec.
+- `appVersion` [String] Version of the App, used for the Spec.
 
 ## methods
 
@@ -33,13 +38,3 @@ Define SSL Credentials for using API in secure mode.
 
 ### init `()`
 Create the listen server
-
-## options
-
-- `routes` [Array\<TrestleRoute>] Don't Touch... no... bad... stop it...
-- `options` [Object] Also don't touch, use constructor.
-- `port` [Number/String] Also also don't touch... you know I'm starting to think I shouldn't have put these in the class...
-- `debug` [Boolean] guess what? That's right! _use the constructor_.
-- `secureMode` [Boolean] OH! You can actually use this one! I forgot to add it to the constructor...
-- `blockedIps` [Array] Not currently in use.
-- `validHosts` [Array] Ditto.

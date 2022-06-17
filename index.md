@@ -3,8 +3,32 @@ Trestle is a Node.js REST API Package, based on Laravel/Lumen, built using my pe
 
 If you don't like how things are built, feel free to suggest changes. Everything is made to my personal preferences, but I welcome improvements and discussions of best practices.
 
-For more in depth and accurate information, check out the [README on the npm page](https://www.npmjs.com/package/@whiskeedev/trestle).
+---
 
+## **Version 2.0.0 is here!**
+Version 2.0.0 introduces a new, non-backwards compatible feature: API Spec compilation!
+
+This was a personal feature that I've wanted for a long while now, and I can confirm in my testing it is _so_ nice to have this feature!
+
+The spec generated is, or at least _should be_, OpenAPI 3.0.0 compliant and works with most API clients such as Insomnia and Postman.
+
+The fields available at the moment are rather basic, but should be enough to quickly set up dev/debugging environments.
+
+\***Additional fields will be available in future updates**.
+
+In addition to the new spec feature, a number of configuration values/variables have been moved to the constructor of `TrestleAPI`.
+
+For example, `secureMode` is no longer accessible via `TrestleAPI.secureMode` and should be instead passed as a optional value in the config object during decleration. For example:
+```javascript
+// Create a new TrestleAPI instance
+const api = new TrestleAPI({ port: process.env.API_PORT })
+api.secureMode = false
+```
+is now done via the following:
+```javascript
+// Create a new TrestleAPI instance
+const api = new TrestleAPI({ port: process.env.API_PORT, secureMode: false })
+```
 ---
 
 ## Coming Soon™
@@ -29,8 +53,7 @@ This basic example is the quickest way to set things up, but runs in insecure mo
 const { TrestleAPI } = require('@whiskeedev/trestle')
 
 // Create a new TrestleAPI instance
-const api = new TrestleAPI({ port: 8081 })
-api.secureMode = false // Without SSL Credentials, Trestle API can only be used in insecure mode.
+const api = new TrestleAPI({ port: 8081, secureMode: false })
 
 // Start the API
 api.init()
@@ -53,6 +76,10 @@ const exampleRouteObj = {
     method: 'GET', // Defaults to 'GET', works with most HTTP methods.
     public: true // Defaults to false. Isn't used by the Framework, but useful when defining beforeRoute functions.
   },
+  summary: 'Simple Hello World route', // Summary for spec generation, required if specStrict is true
+  description: 'A quick example route to test my API works!', // Description for spec, optional
+  responses: null, // Responses for spec, defaults to a generic 200 success - See Swagger/OpenAPI for more information.
+  tags: ['example'], // Tags for spec, helps categories/organise your paths/operations, depending on software.
   async handler ({ response }) {
     console.log('Hello! My route was hit!')
 
@@ -63,7 +90,12 @@ const exampleRouteObj = {
 }
 
 // Create a TrestleRoute from this object.
-const exampleRoute = new TrestleRoute(exampleRouteObj.path, exampleRouteObj.options)
+const exampleRoute = new TrestleRoute(exampleRouteObj.path, exampleRouteObj.options, {
+  summary: exampleRouteObj.summary,
+  description: exampleRouteObj.description,
+  responses: exampleRouteObj.responses,
+  tags: exampleRouteObj.tags
+})
 exampleRoute.on('route_match', exampleRouteObj.handler)
 
 // Add the newly created route to the API.
@@ -91,8 +123,7 @@ const fs = require('fs')
 // Create a new TrestleAPI instance
 const secureMode = true
 
-const api = new TrestleAPI({ port: 8081 })
-api.secureMode = secureMode
+const api = new TrestleAPI({ port: 8081, secureMode })
 
 if (secureMode && (process.env.SSL_KEY && process.env.SSL_CERT)) {
   const key = fs.readFileSync(process.env.SSL_KEY).toString()
@@ -102,4 +133,20 @@ if (secureMode && (process.env.SSL_KEY && process.env.SSL_CERT)) {
 } else if (secureMode) throw new Error('SSL Creds missing')
 
 api.init()
+```
+---
+
+## Additional values
+
+Additional values are available when declaring your `TrestleAPI` class. Here's an example:
+```javascript
+// Create a new TrestleAPI instance
+const api = new TrestleAPI({
+  port: process.env.API_PORT,
+  specStrict: true, // Enforces strict spec compliance, and will refuse to start if non-compliant.
+  secureMode: false,
+  appName: 'Trestle Proto API', // App Name for the spec (default: Trestle API)
+  appVersion: pjson.version, // App version, not to be mistaken with the framework version (default: 1.0.0)
+  appDescription: pjson.description // App description, undefined by default.
+})
 ```
