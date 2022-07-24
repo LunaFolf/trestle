@@ -148,13 +148,15 @@ class TrestleAPI {
     this._routes.forEach(route => {
       const { path, method, summary, description, responses, tags } = route
 
-      spec.paths[path] = {
-        [String(method).toLowerCase()]: {
-          summary,
-          description,
-          responses,
-          tags : tags.length ? tags : undefined
-        }
+      if (!spec.paths[path]) {
+        spec.paths[path] = {}
+      }
+
+      spec.paths[path][String(method).toLowerCase()] = {
+        summary,
+        description,
+        responses,
+        tags : tags.length ? tags : undefined
       }
     })
 
