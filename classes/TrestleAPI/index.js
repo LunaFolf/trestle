@@ -39,7 +39,13 @@ function getJsonDataFromRequestBody(requestBody, { contentType }) {
 
 function handleJsonResponse (response, json, options) {
   const statusCode = options?.statusCode || 200
-  response.writeHead(statusCode, { 'Content-Type': 'application/json' })
+  response.writeHead(statusCode, {
+    'Content-Type': 'application/json',
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization, Content-Length, X-Requested-With',
+    'Access-Control-Allow-Credentials': 'true'
+  })
 
   let status = 'success'
   let data = json || null
